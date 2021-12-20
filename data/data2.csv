@@ -1,5 +1,6 @@
-name, measurement_unit
-абрикосовое варенье,г
+﻿name, measurement_unit
+measurement_unit, name
+абрикосовое варенье, г
 абрикосовое пюре,г
 абрикосовый джем,г
 абрикосовый сок,стакан
