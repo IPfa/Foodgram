@@ -1,4 +1,5 @@
 from django.db import models
+from foodgram.validation import validate_under_zero
 from users.models import CustomUser
 
 
@@ -27,12 +28,30 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
+    MEASUREMENT_UNITS = [
+    ('г', 'Грамм'),
+    ('кг', 'Килограмм'),
+    ('Ст.л.', 'Столовая ложка'),
+    ('мл', 'Миллилитр'),
+    ('л', 'Литр'),
+    ('шт', 'Штука'),
+    ('по вкусу', 'По вкусу'),
+    ('ч.л.', 'Чайная ложка'),
+    ('капля', 'Капля'),
+    ('горсть', 'Горсть'),
+    ('стакан', 'Стакан'),
+    ('кусок', 'Кусок'),
+    ('банка', 'Банка'),
+    ('щепотка', 'Щепотка'),
+    ]
     name = models.CharField(
         max_length=20,
         verbose_name='Называние'
     )
     measurement_unit = models.CharField(
         max_length=20,
+        choices=MEASUREMENT_UNITS,
+        default='г',
         verbose_name='Единица измерения'
     )
 
@@ -78,7 +97,8 @@ class Recipe(models.Model):
         verbose_name='Тег'
     )
     cooking_time = models.IntegerField(
-        verbose_name='Время приготовления'
+        verbose_name='Время приготовления',
+        validators=[validate_under_zero]
     )
 
     class Meta:
@@ -103,6 +123,7 @@ class Quantity(models.Model):
     )
     quantity = models.FloatField(
         verbose_name='Количество',
+        validators=[validate_under_zero]
     )
 
     class Meta:

@@ -4,3 +4,4 @@ djangorestframework==3.11.0
 djoser
 drf-extra-fields==3.2.1
 django-filter==21.1
+python-dotenv==0.19.2

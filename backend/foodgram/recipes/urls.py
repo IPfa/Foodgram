@@ -9,24 +9,24 @@ from .views import (FavoriteCreateDeleteViewSet, ListCreateRecipeViewSet,
 
 app_name = 'recipes'
 
-router = DefaultRouter()
-router.register(
+router_v1 = DefaultRouter()
+router_v1.register(
     'recipes',
     RetrieveUpdateDeleteRecipeViewSet,
     basename='retrieve_update__delete_recipes'
 )
-router.register('recipes', FavoriteCreateDeleteViewSet, basename='favorite')
-router.register(
+router_v1.register('recipes', FavoriteCreateDeleteViewSet, basename='favorite')
+router_v1.register(
     'recipes',
     ShoppingListCreateDeleteViewSet,
     basename='shopping_list'
 )
-router.register(
+router_v1.register(
     'recipes',
     ListCreateRecipeViewSet,
     basename='list_create_recipes'
 )
-router.register(
+router_v1.register(
     'ingredients',
     ListRetrieveIngredientViewSet,
     basename='ingredients'
@@ -41,5 +41,5 @@ urlpatterns = [
         download_shopping_cart,
         name='download_shopping_cart'
     ),
-    path('', include(router.urls)),
+    path('', include(router_v1.urls)),
 ]

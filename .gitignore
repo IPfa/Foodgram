@@ -131,5 +131,7 @@ dmypy.json
 # .idea
 .idea
 
-# Documents
-foodgram_plan
+# Custom
+data/
+frontend/
+backend/foodgram/media

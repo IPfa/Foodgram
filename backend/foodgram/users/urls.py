@@ -7,8 +7,8 @@ from .views import (FollowCreateDeleteViewSet, ListUser, RetrieveUser,
 
 app_name = 'users'
 
-router = DefaultRouter()
-router.register('users', FollowCreateDeleteViewSet, basename='subscribe')
+router_v1 = DefaultRouter()
+router_v1.register('users', FollowCreateDeleteViewSet, basename='subscribe')
 
 
 urlpatterns = [
@@ -20,5 +20,5 @@ urlpatterns = [
     path('users/', ListUser.as_view()),
     path('users/<int:pk>/', RetrieveUser.as_view()),
     path('', include('djoser.urls')),
-    path('', include(router.urls)),
+    path('', include(router_v1.urls)),
 ]
