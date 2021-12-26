@@ -114,14 +114,14 @@ class Quantity(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='quantity'
+        related_name='amount'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='quantity'
+        related_name='amount'
     )
-    quantity = models.FloatField(
+    amount = models.FloatField(
         verbose_name='Количество',
         validators=[validate_under_zero]
     )
@@ -131,7 +131,7 @@ class Quantity(models.Model):
         verbose_name_plural = 'Количество ингредиентов'
 
     def __str__(self) -> str:
-        return f'{self.recipe} {self.ingredient} {self.quantity}'
+        return f'{self.recipe} {self.ingredient} {self.amount}'
 
 
 class Favorite(models.Model):

@@ -1,7 +1,13 @@
+asgiref==3.2.10
 django==2.2.6
 pillow==8.4.0
 djangorestframework==3.11.0
 djoser
 drf-extra-fields==3.2.1
 django-filter==21.1
+gunicorn==20.0.4
+psycopg2-binary==2.8.5
+sqlparse==0.3.1
+pytz==2020.1
+PyJWT==2.1.0
 python-dotenv==0.19.2

@@ -2,10 +2,9 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (FavoriteCreateDeleteViewSet, ListCreateRecipeViewSet,
-                    ListRetrieveIngredientViewSet,
+                    ListRetrieveIngredientViewSet, ListRetrieveTagViewSet,
                     RetrieveUpdateDeleteRecipeViewSet,
-                    ShoppingListCreateDeleteViewSet, download_shopping_cart,
-                    tag, tags_list)
+                    ShoppingListCreateDeleteViewSet, download_shopping_cart,)
 
 app_name = 'recipes'
 
@@ -31,11 +30,14 @@ router_v1.register(
     ListRetrieveIngredientViewSet,
     basename='ingredients'
 )
+router_v1.register(
+    'tags',
+    ListRetrieveTagViewSet,
+    basename='tags'
+)
 
 
 urlpatterns = [
-    path('tags/', tags_list, name='tags_list'),
-    path('tags/<int:pk>/', tag, name='tag'),
     path(
         'recipes/download_shopping_cart/',
         download_shopping_cart,

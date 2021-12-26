@@ -42,7 +42,7 @@ class TagAdmin(admin.ModelAdmin):
 
 @admin.register(Quantity)
 class QuantityAdmin(admin.ModelAdmin):
-    list_display = ('recipe', 'ingredient', 'quantity', 'pk')
+    list_display = ('recipe', 'ingredient', 'amount', 'pk')
     search_fields = ('recipe',)
     list_filter = ('recipe',)
     empty_value_display = EMPTY

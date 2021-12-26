@@ -13,12 +13,34 @@ class IngredientSerializer(serializers.ModelSerializer):
         read_only_fields = ('measurement_unit',)
 
 
-class QuantitySerializer(serializers.ModelSerializer):
-    ingredient = IngredientSerializer()
+class QuantityIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    measurement_unit = serializers.SerializerMethodField()
 
     class Meta:
         model = Quantity
-        fields = ('ingredient', 'quantity')
+        fields = ('id', 'name', 'measurement_unit', 'amount',)
+
+    def get_name(self, obj):
+        return obj.ingredient.name
+
+    def get_id(self, obj):
+        return obj.ingredient.id
+
+    def get_measurement_unit(self, obj):
+        return obj.ingredient.measurement_unit
+
+
+class QuantitySerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = Quantity
+        fields = ('id', 'amount')
+
+    def get_id(self, obj):
+        return obj.ingredient.id
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -27,74 +49,10 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CreateRecipeSerializer(serializers.ModelSerializer):
-    ingredients = QuantitySerializer(many=True, source='quantity')
-    image = Base64ImageField()
-
-    class Meta:
-        model = Recipe
-        fields = (
-            'ingredients',
-            'tags',
-            'image',
-            'name',
-            'text',
-            'cooking_time'
-        )
-
-    def create(self, validated_data):
-        tags = validated_data.get('tags')
-        recipe = Recipe(
-            author=self.context.get('request').user,
-            name=validated_data.get('name'),
-            text=validated_data.get('text'),
-            cooking_time=validated_data.get('cooking_time'),
-            image=validated_data.get('image'),
-        )
-        recipe.save()
-        recipe.tags.set(tags)
-        for i in range(0, len(validated_data.get('quantity'))):
-            full_ingredient = validated_data.get('quantity')[i]
-            quantity = full_ingredient.get('quantity')
-            ingredient = Ingredient.objects.get(
-                name=full_ingredient.get('ingredient').get('name')
-            )
-            Quantity.objects.create(
-                recipe=recipe,
-                ingredient=ingredient,
-                quantity=quantity
-            )
-        return recipe
-
-    def update(self, instance, validated_data):
-        tags = validated_data.get('tags')
-        quantity = Quantity.objects.filter(recipe=instance)
-        for i in range(0, len(quantity)):
-            quantity[i].delete()
-        instance.author = self.context.get('request').user
-        instance.name = validated_data.get('name')
-        instance.text = validated_data.get('text')
-        instance.cooking_time = validated_data.get('cooking_time')
-        instance.image = validated_data.get('image')
-        instance.save()
-        instance.tags.set(tags)
-        for i in range(0, len(validated_data.get('quantity'))):
-            full_ingredient = validated_data.get('quantity')[i]
-            quantity = full_ingredient.get('quantity')
-            ingredient = Ingredient.objects.get(
-                name=full_ingredient.get('ingredient').get('name')
-            )
-            Quantity.objects.create(
-                recipe=instance,
-                ingredient=ingredient,
-                quantity=quantity
-            )
-        return instance
-
-
 class RetrieveRecipeSerializer(serializers.ModelSerializer):
     author = CustomUserSerializer(read_only=True)
-    ingredients = QuantitySerializer(many=True, source='quantity')
+    ingredients = QuantityIngredientSerializer(many=True, source='amount')
+    tags = TagSerializer(many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -131,6 +89,91 @@ class RetrieveRecipeSerializer(serializers.ModelSerializer):
         if favorite.exists():
             return True
         return False
+
+
+class CreateRecipeSerializer(serializers.ModelSerializer):
+    ingredients = QuantitySerializer(many=True, source='amount')
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'ingredients',
+            'tags',
+            'image',
+            'name',
+            'text',
+            'cooking_time'
+        )
+
+    def create(self, validated_data):
+        tags = validated_data.get('tags')
+        recipe = Recipe(
+            author=self.context.get('request').user,
+            name=validated_data.get('name'),
+            text=validated_data.get('text'),
+            cooking_time=validated_data.get('cooking_time'),
+            image=validated_data.get('image'),
+        )
+        recipe.save()
+        recipe.tags.set(tags)
+        for i in range(0, len(validated_data.get('amount'))):
+            id = validated_data.get('amount')[i].get('id')
+            amount = validated_data.get('amount')[i].get('amount')
+            ingredient = Ingredient.objects.get(pk=id)
+            Quantity.objects.create(
+                recipe=recipe,
+                ingredient=ingredient,
+                amount=amount
+            )
+        return recipe
+
+    def update(self, instance, validated_data):
+        tags = validated_data.get('tags')
+        quantity = Quantity.objects.filter(recipe=instance)
+        for i in range(0, len(quantity)):
+            quantity[i].delete()
+        instance.author = self.context.get('request').user
+        instance.name = validated_data.get('name')
+        instance.text = validated_data.get('text')
+        instance.cooking_time = validated_data.get('cooking_time')
+        instance.image = validated_data.get('image')
+        instance.save()
+        instance.tags.set(tags)
+        for i in range(0, len(validated_data.get('amount'))):
+            id = validated_data.get('amount')[i].get('id')
+            amount = validated_data.get('amount')[i].get('amount')
+            ingredient = Ingredient.objects.get(pk=id)
+            Quantity.objects.create(
+                recipe=instance,
+                ingredient=ingredient,
+                amount=amount
+            )
+        return instance
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        ret['id'] = instance.id
+        ingredients = []
+        for i in range(0, len(ret['ingredients'])):
+            amount = ret['ingredients'][i]['amount']
+            quantity = Quantity.objects.get(recipe=instance, amount=amount)
+            quantity_serializer = QuantityIngredientSerializer(quantity)
+            ingredients.append(quantity_serializer.data)
+        ret['ingredients'] = ingredients
+        tags = []
+        for i in ret['tags']:
+            tag = Tag.objects.get(pk=i)
+            tags_serializer = TagSerializer(tag)
+            tags.append(tags_serializer.data)
+        ret['tags'] = tags
+        author = self.context.get('request').user
+        author_serializer = CustomUserSerializer(
+            author,
+            context={'request': self.context.get('request')}
+        )
+        ret['author'] = author_serializer.data
+        return ret
 
 
 class FollowSerializer(CustomUserSerializer):

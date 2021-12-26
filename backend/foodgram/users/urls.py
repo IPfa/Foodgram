@@ -2,8 +2,7 @@ from django.urls import path
 from django.urls.conf import include
 from rest_framework.routers import DefaultRouter
 
-from .views import (FollowCreateDeleteViewSet, ListUser, RetrieveUser,
-                    SubscriptionsListView)
+from .views import FollowCreateDeleteViewSet, SubscriptionsListView
 
 app_name = 'users'
 
@@ -17,8 +16,6 @@ urlpatterns = [
         SubscriptionsListView.as_view(),
         name='subscriptions'
     ),
-    path('users/', ListUser.as_view()),
-    path('users/<int:pk>/', RetrieveUser.as_view()),
     path('', include('djoser.urls')),
     path('', include(router_v1.urls)),
 ]

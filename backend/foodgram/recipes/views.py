@@ -1,9 +1,8 @@
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from foodgram.pagination import CustomPageNumberPagination
 from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
-from rest_framework.exceptions import APIException, MethodNotAllowed
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
@@ -31,17 +30,9 @@ class RemovingFromShoppingListForbidden(FavoriteForbidden):
     default_detail = 'Этого рецепта нет в списке покупок'
 
 
-class UpdateModelMixin(mixins.UpdateModelMixin, viewsets.GenericViewSet):
-
-    def partial_update(self, request, *args, **kwargs):
-        raise MethodNotAllowed('PATCH', detail='PATCH Method is not allowed')
-
-
 class ListCreateRecipeViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
                               viewsets.GenericViewSet):
-    queryset = Recipe.objects.all()
     serializer_class = RetrieveRecipeSerializer
-    pagination_class = CustomPageNumberPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
@@ -51,9 +42,21 @@ class ListCreateRecipeViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
             return RetrieveRecipeSerializer
         return CreateRecipeSerializer
 
+    def get_queryset(self):
+        queryset = Recipe.objects.all()
+        is_favorited = self.request.query_params.get('is_favorited')
+        is_in_shopping_cart = self.request.query_params.get(
+            'is_in_shopping_cart'
+        )
+        if is_favorited is not None:
+            queryset = RecipeFilter.favorite_filter(self.request)
+        if is_in_shopping_cart is not None:
+            queryset = RecipeFilter.shopping_cart_filter(self.request)
+        return queryset
+
 
 class RetrieveUpdateDeleteRecipeViewSet(mixins.RetrieveModelMixin,
-                                        UpdateModelMixin,
+                                        mixins.UpdateModelMixin,
                                         mixins.DestroyModelMixin,
                                         viewsets.GenericViewSet):
     queryset = Recipe.objects.all()
@@ -135,8 +138,18 @@ class ListRetrieveIngredientViewSet(mixins.RetrieveModelMixin,
                                     viewsets.GenericViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
+    pagination_class = None
     filter_backends = (filters.SearchFilter,)
     search_fields = ('^name',)
+    permission_classes = (permissions.AllowAny,)
+
+
+class ListRetrieveTagViewSet(mixins.RetrieveModelMixin,
+                             mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    pagination_class = None
+    permission_classes = (permissions.AllowAny,)
 
 
 @api_view(['GET'])
@@ -150,7 +163,7 @@ def download_shopping_cart(request):
             quantity_ingredient = Ingredient.objects.get(
                 name=quantities[item].ingredient
             )
-            quantity_quantity = quantities[item].quantity
+            quantity_quantity = quantities[item].amount
             if quantity_ingredient.name in ingredients.keys():
                 new_ingredient_quantity = (
                     ingredients[quantity_ingredient.name] + quantity_quantity
@@ -167,17 +180,3 @@ def download_shopping_cart(request):
     resp = HttpResponse(content, content_type='text/plain')
     resp['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
     return resp
-
-
-@api_view(['GET'])
-def tags_list(request):
-    tags = Tag.objects.all()
-    serializer = TagSerializer(tags, many=True)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-def tag(request, pk):
-    tag = Tag.objects.get(pk=pk)
-    serializer = TagSerializer(tag)
-    return Response(serializer.data)

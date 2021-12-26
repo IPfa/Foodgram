@@ -1,39 +1,32 @@
 import django_filters
 
-from .models import Recipe
-
-CHOICES = (
-    (0, 'False'),
-    (1, 'True'),
-)
+from .models import Recipe, Tag
 
 
 class RecipeFilter(django_filters.FilterSet):
-    tags = django_filters.AllValuesMultipleFilter(field_name='tags__slug')
-    is_favorited = django_filters.ChoiceFilter(
-        choices=CHOICES,
-        method='favorite_filter'
-    )
-    is_in_shopping_cart = django_filters.ChoiceFilter(
-        choices=CHOICES,
-        method='shopping_cart_filter'
+    tags = django_filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        to_field_name='slug',
+        queryset=Tag.objects.all()
     )
 
-    def favorite_filter(self, queryset, name, value):
-        if int(value) == 1:
-            qs = Recipe.objects.filter(favorite__user=self.request.user)
+    def favorite_filter(request):
+        is_favorited = request.query_params.get('is_favorited')
+        if is_favorited == 'true':
+            qs = Recipe.objects.filter(favorite__user=request.user)
         else:
             qs = Recipe.objects.all().exclude(
-                favorite__user=self.request.user
+                favorite__user=request.user
             )
         return qs
 
-    def shopping_cart_filter(self, queryset, name, value):
-        if int(value) == 1:
-            qs = Recipe.objects.filter(shoppinglist__user=self.request.user)
+    def shopping_cart_filter(request):
+        is_in_shopping_cart = request.query_params.get('is_in_shopping_cart')
+        if is_in_shopping_cart == 'true':
+            qs = Recipe.objects.filter(shoppinglist__user=request.user)
         else:
             qs = Recipe.objects.all().exclude(
-                shoppinglist__user=self.request.user
+                shoppinglist__user=request.user
             )
         return qs
 

@@ -7,11 +7,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+DEBUG = False
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['51.250.31.20']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -60,8 +60,12 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': os.getenv('DB_ENGINE'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT')
     }
 }
 
@@ -91,26 +95,30 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', 
+        'rest_framework.permissions.IsAuthenticated',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
     ],
-    'PAGE_SIZE': 6,
+    'DEFAULT_PAGINATION_CLASS': 'foodgram.pagination.CustomPageNumberPagination',
 }
 
 DJOSER = {
-    'SERIALIZERS': {
-         'current_user': 'users.serializers.CustomUserSerializer',
-         'user_create': 'users.serializers.CustomUserCreateSerializer',
-         'user': 'users.serializers.CustomUserSerializer'
+    'PERMISSIONS': {
+        'user': ['rest_framework.permissions.AllowAny'],
     },
-    'LOGIN_FIELD': 'email'
+    'SERIALIZERS': {
+        'current_user': 'users.serializers.CustomUserSerializer',
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
+        'user': 'users.serializers.CustomUserSerializer'
+    },
+    'LOGIN_FIELD': 'email',
 }
