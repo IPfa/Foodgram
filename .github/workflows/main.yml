@@ -19,6 +19,7 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2 # Выполняет push образа в DockerHub 
         with:
+          context: ./backend
           push: true
           tags: pfanenshtil/foodgram_backend:latest
 
