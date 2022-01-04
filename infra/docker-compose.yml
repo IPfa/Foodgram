@@ -7,7 +7,9 @@ services:
     env_file:
       - ./.env
   backend:
-    image: pfanenshtil/foodgram_backend:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -18,7 +20,9 @@ services:
       - media_value:/app/media/
       - static_value:/app/static/
   frontend:
-    image: pfanenshtil/foodgram_frontend:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:

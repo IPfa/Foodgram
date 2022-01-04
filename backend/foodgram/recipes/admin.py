@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Favorite, Ingredient, Quantity, Recipe, ShoppingList, Tag
+from .forms import TagForm
 
 EMPTY = '-пусто-'
 
@@ -37,6 +38,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug', 'pk')
     search_fields = ('name',)
     list_filter = ('name',)
+    form = TagForm
     empty_value_display = EMPTY
 
 
