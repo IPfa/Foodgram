@@ -4,8 +4,7 @@ from rest_framework import filters, mixins, permissions, status, viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
+from weasyprint import HTML
 
 
 from .filters import RecipeFilter
@@ -181,7 +180,7 @@ def download_shopping_cart(request):
         content.append(contetnt_member)
     str = ''.join(content)
     filename = 'my-shopping-cart.pdf'
-    html = HTML(string=str)
+    html = HTML(string=str, base_url='')
     generated_pdf = html.write_pdf()
     resp = HttpResponse(generated_pdf, content_type='pdf')
     resp['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
