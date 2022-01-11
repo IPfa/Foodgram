@@ -13,8 +13,6 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 ALLOWED_HOSTS = ['51.250.31.20']
 
-#host='51.250.31.20'
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

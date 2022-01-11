@@ -182,6 +182,6 @@ def download_shopping_cart(request):
     filename = 'my-shopping-cart.pdf'
     html = HTML(string=str, base_url='')
     generated_pdf = html.write_pdf()
-    resp = HttpResponse(generated_pdf, content_type='pdf')
+    resp = HttpResponse(generated_pdf, content_type='application/pdf')
     resp['Content-Disposition'] = 'attachment; filename={0}'.format(filename)
     return resp
