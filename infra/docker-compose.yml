@@ -20,9 +20,7 @@ services:
       - media_value:/app/media/
       - static_value:/app/static/
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: pfanenshtil/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
