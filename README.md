@@ -1,27 +1,34 @@
 # Foodgram
+Backend in form of REST API, written on Python, for Foodgram application. Foodgram is an learning project and frontend for this project was developed my other team. This application is a social media for people who love cooking and need some place, where they could public and exchange recipes. Foodgram offers following functionality:
 
-REST API веб приложения Foodgram написанный на Python. Foodgram - это социальная сеть для публикации и обмена рецептами. Реализованы: авторизация, публикация и редактирование рецептов, спискок избранного, список покупок с возможностью генерации pdf файла, фильтрация по тегам. 
-В рабочей конфигурации бэкенд, фроненд, база данных и NGNIX запускаются на сервере через докер контейнеры. Конфигурация инфраструктуры находится в папке infra. Фронтэнд был написан сторонними разработчиками.
+- User Managment System
+- System of subscriptions
+- Users could public recipes with pictures and tag recipes to different groups
+- Tags and ingredients are managed by application administrators in the admin zone
+- Users could create add recipes to favorites section and to the shopping list
+- Ingredients needed for recipes from the shopping list could be exported in a PDF form
 
-# Стек Технологий
-Python, Django, Django REST, SQLite, PostgreSQL, Docker, NGNIX, сторонние библиотеки.
+Whole project runs on Docker and uses Docker containers. Configuration of the infrastructure is in infra folder.
 
-# Запуск
-Для запуска необходим Docker.
+# Technology Stack
+Python, Django, Django REST, PostgreSQL, Docker, NGNIX, Gunicorn, Djoser, Pillow.
 
-Перейти в папку infra.
+# Launching
+For launch Docker application is needed.
+
+Go to the infra folder.
 ```
 Foodgram/infra
 ```
 
-В папке infra создать файл .env. Смотри пример наполнения файла ниже.
+In the infra folder create an env-file (.env)  Please see env-file section below.
 
-Из папки infra запустить докер контейнеры выполнив команду.
+From infra folder start docker containers.
 ```
 docker-compose up -d
 ```
 
-Выполнить команды. При создании суперюзера установить свой логин и пароль.
+After successful app start run following commands. By superuser creation set your own data .
 ```
 docker-compose exec backend python manage.py makemigrations
 docker-compose exec backend python manage.py migrate
@@ -29,22 +36,22 @@ docker-compose exec backend python manage.py collectstatic
 docker-compose exec backend python manage.py createsuperuser
 ```
 
-**Проект доступен по адресу:**
+**Project is available on:**
 http://localhost
-**Админ зона:**
+**Admin zone:**
 http://localhost/admin
-**Redoc с endpoints для API:**
+**Redoc with API endpoints:**
 http://localhost/api/docs/
 
-# Шаблон наполнения env-файла
-Для корректного старта контейнеров Docker необходимые следующие данные:
+# Template for env-file
+For correct functionality of database following data is needed:
 
-1. DB_ENGINE - в данном случае используется postgresql (default: django.db.backends.postgresql)
-2. DB_NAME - имя базы данных (default: postgres)
-3. POSTGRES_USER - логин для подключения к базе данных (default: postgres)
-4. POSTGRES_PASSWORD - пароль для подключения к БД (default: Password1)
-5. DB_HOST - название сервиса контейнера в Docker (default: db)
-5. DB_PORT - порт для подключения к БД (default: 5432)
+DB_ENGINE - in our case this is postgresql (default: django.db.backends.postgresql)
+DB_NAME - database name (default: postgres)
+POSTGRES_USER - login for database connection (default: postgres)
+POSTGRES_PASSWORD - password for database connection (default: Password1)
+DB_HOST - name of service container in Docker (default: db)
+DB_PORT - port for the database connection (default: 5432)
 
 # Автор
 [IPfa](https://github.com/IPfa)
